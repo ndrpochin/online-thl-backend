@@ -1,0 +1,37 @@
+[
+    {
+        "id": 1,
+        "plate": "ACS123",
+        "date": "6/9/2023",
+        "rego": false,
+        "ruc": true
+    },
+    {
+        "id": 2,
+        "plate": "ACS123",
+        "date": "7/19/2023",
+        "rego": false,
+        "ruc": true
+    },
+    {
+        "id": 3,
+        "plate": "ACS123",
+        "date": "12/18/2022",
+        "rego": true,
+        "ruc": false
+    },
+    {
+        "id": 4,
+        "plate": "ACS123",
+        "date": "6/10/2023",
+        "rego": true,
+        "ruc": true
+    },
+    {
+        "id": 5,
+        "plate": "ACS123",
+        "date": "10/24/2023",
+        "rego": false,
+        "ruc": false
+    }
+]
