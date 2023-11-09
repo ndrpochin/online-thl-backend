@@ -10,4 +10,10 @@ export const getById = (id: Number): Vehicle | undefined => {
   return vehicle
 }
 
-export const saveData = (): undefined => undefined
+export const saveData = (newVehicleEntry: Vehicle): Vehicle => {
+  const newVehicle = {
+    ...newVehicleEntry
+  }
+  vehicles.push(newVehicle)
+  return newVehicle
+}

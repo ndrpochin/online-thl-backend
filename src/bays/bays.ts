@@ -8,11 +8,18 @@ router.get('/', (req, res) => {
 })
 
 router.get('/:id', (req, res) => {
-  res.send(vehicleService.getById(+req.params.id))
+  const vehicle = vehicleService.getById(+req.params.id)
+
+  return vehicle !== null
+    ? res.send(vehicle)
+    : res.sendStatus(404)
 })
 
 router.post('/', (req, res) => {
-  res.send('post for a new vehicle')
+  const { id, plate, date, rego, ruc } = req.body
+
+  const newVehicle = vehicleService.saveData({ id, plate, date, rego, ruc })
+  res.send(newVehicle)
 })
 
 export default router
