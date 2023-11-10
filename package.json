@@ -9,7 +9,8 @@
     "lint:fix": "ts-standard --fix",
     "start": "node build/index.js",
     "tsc": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "vercel-build": "echo hello"
   },
   "keywords": [],
   "author": "",
