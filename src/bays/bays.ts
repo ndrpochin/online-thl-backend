@@ -1,5 +1,4 @@
 import express from 'express'
-import * as vehicleService from '../services/bays.service'
 import { Pool } from 'pg'
 import dotenv from "dotenv"
 
@@ -28,12 +27,14 @@ router.get('/', async (req, res) => {
   }
 })
 
-router.get('/v1/:id', (req, res) => {
-  const vehicle = vehicleService.getById(+req.params.id)
-
-  return vehicle !== null
+router.get('/:id', async (req, res) => {
+  const idbay = req.params.id
+  const response = await pool.query('SELECT * FROM bays where idbay = $1', [idbay])
+  const vehicle = response.rows[0]
+  
+  return vehicle !== undefined
     ? res.send(vehicle)
-    : res.sendStatus(404)
+    : res.status(404).json({ 'message': 'not found' })
 })
 
 router.post('/', async (req, res) => {
