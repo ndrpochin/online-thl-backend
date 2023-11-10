@@ -1,14 +1,16 @@
 import express from 'express'
 import * as vehicleService from '../services/bays.service'
 import { Pool } from 'pg'
+import dotenv from "dotenv"
 
+dotenv.config()
 const router = express.Router()
 
 const pool = new Pool({
-  database: '',
-  host: '',
-  password: '',
-  user: '',
+  database: process.env.PG_DATABASE,
+  host: process.env.PG_HOST,
+  password: process.env.PG_PASSWORD,
+  user: process.env.PG_USERNAME,
   ssl: true,
   max: 20,
   idleTimeoutMillis: 0,
@@ -17,7 +19,9 @@ const pool = new Pool({
 
 router.get('/', async (req, res) => {
   try {
+    console.log('database', process.env.DB_DATABASE)
     const response = await pool.query('SELECT * FROM bays ORDER BY idbay')
+    console.log(response.rows)
     res.status(200).json(response.rows)
   } catch (e) {
     console.error(e)
