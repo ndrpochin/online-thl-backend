@@ -7,7 +7,7 @@ const app = express()
 app.use(express.json())
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://online-thl.vercel.app/']
+  origin: ['http://localhost:3000', 'https://online-thl.vercel.app']
 }));
 
 const PORT = 3000
