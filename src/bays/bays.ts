@@ -31,7 +31,7 @@ router.get('/:id', async (req, res) => {
   const idbay = req.params.id
   const response = await pool.query('SELECT * FROM bays where idbay = $1', [idbay])
   const vehicle = response.rows[0]
-  
+
   return vehicle !== undefined
     ? res.send(vehicle)
     : res.status(404).json({ 'message': 'not found' })
@@ -47,21 +47,25 @@ router.post('/', async (req, res) => {
   res.json('inserted!')
 })
 
-router.put('/:id', async (req, res) => {
-  const idbay = req.params.id
-  const response = await pool.query('SELECT * FROM bays where idbay = $1', [idbay])
-  const vehicle = response.rows[0]
-  const { plate, date, rego, ruc } = req.body
+const setSocketIO = (io: any) => {
+  router.put('/:id', async (req, res) => {
+    const idbay = req.params.id
+    const response = await pool.query('SELECT * FROM bays where idbay = $1', [idbay])
+    const vehicle = response.rows[0]
+    const { plate, date, rego, ruc } = req.body
 
-  if (vehicle === undefined) {
-    res.status(400).json('update failed!')
-  }
+    if (vehicle === undefined) {
+      res.status(400).json('update failed!')
+    }
 
-  const update = await pool.query('UPDATE bays SET plate = $1, date = $2, rego = $3, ruc = $4 WHERE idbay = $5', [plate, date, rego, ruc, idbay])
-  if (update.rowCount === 0) {
-    res.status(400).json('failed!')
-  }
-  res.json(vehicle)
-})
+    const update = await pool.query('UPDATE bays SET plate = $1, date = $2, rego = $3, ruc = $4 WHERE idbay = $5', [plate.toUpperCase(), date, rego, ruc, idbay])
+    io.emit('put-event', { data: 'Updated data' })
+    
+    if (update.rowCount === 0) {
+      res.status(400).json('failed!')
+    }
+    res.json(vehicle)
+  })
+}
 
-export default router
+export { router, setSocketIO } 
