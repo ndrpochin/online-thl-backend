@@ -18,9 +18,7 @@ const pool = new Pool({
 
 router.get('/', async (req, res) => {
   try {
-    console.log('database', process.env.DB_DATABASE)
     const response = await pool.query('SELECT * FROM bays ORDER BY idbay')
-    console.log(response.rows)
     res.status(200).json(response.rows)
   } catch (e) {
     console.error(e)
@@ -29,7 +27,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   const idbay = req.params.id
-  const response = await pool.query('SELECT * FROM bays where idbay = $1', [idbay])
+  const response = await pool.query('SELECT * FROM bays where idbay = $1 ORDER BY idbay', [idbay])
   const vehicle = response.rows[0]
 
   return vehicle !== undefined
@@ -47,9 +45,20 @@ router.post('/', async (req, res) => {
   res.json('inserted!')
 })
 
+router.delete('/reset', async(req, res) => {
+  const resetParam = req.query.reset;
+console.log(resetParam)
+  if (resetParam === 'clean') {
+    const response = await pool.query("UPDATE bays SET plate='', date='', rego=false, ruc=false WHERE true")
+    res.json(`Se eliminó el recurso, ${response}`);
+  } else {
+    res.json(`No se eliminó el recurso`);
+  }
+});
+
 const setSocketIO = (io: any) => {
   router.put('/:id', async (req, res) => {
-    const idbay = req.params.id
+    const idbay = +req.params.id
     const response = await pool.query('SELECT * FROM bays where idbay = $1', [idbay])
     const vehicle = response.rows[0]
     const { plate, date, rego, ruc } = req.body
@@ -58,8 +67,7 @@ const setSocketIO = (io: any) => {
       res.status(400).json('update failed!')
     }
 
-    const update = await pool.query('UPDATE bays SET plate = $1, date = $2, rego = $3, ruc = $4 WHERE idbay = $5', [plate.toUpperCase(), date, rego, ruc, idbay])
-    io.emit('put-event', { data: 'Updated data' })
+    const update = await pool.query('UPDATE bays SET plate = $1, date = $2, rego = $3, ruc = $4 WHERE idbay = $5', [plate.toUpperCase(), date, rego, ruc, idbay]) 
     
     if (update.rowCount === 0) {
       res.status(400).json('failed!')

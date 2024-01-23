@@ -32,5 +32,8 @@ server.listen(PORT, () => {
 
 io.on("connection", (socket) => {
   console.log(`a user connected ${socket.id}`);
+  socket.on('put-event', (data) => {
+    socket.broadcast.emit('put-broadcast', data)
+  })
 });
 export default app
