@@ -20,8 +20,9 @@ router.get('/', async (req, res) => {
   try {
     const response = await pool.query('SELECT * FROM bays ORDER BY idbay')
     res.status(200).json(response.rows)
-  } catch (e) {
-    console.error(e)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Server Internal Error', message: error });
   }
 })
 
@@ -40,12 +41,18 @@ router.post('/', async (req, res) => {
   // TODO: validar el formato de los datos antes de guardar
   // Validar que la patente no exista en la BBDD
   // IDEA: si la patente está vacia, poner en gris en el Front los labels de REGO/RUC
-  await pool.query('INSERT INTO bays (plate, date, rego, ruc, cof) VALUES ($1, $2, $3, $4, $5)',
-    [plate, date, rego, ruc, cof])
-  res.json('inserted!')
+  try {
+    await pool.query('INSERT INTO bays (plate, date, rego, ruc, cof) VALUES ($1, $2, $3, $4, $5)',
+      [plate, date, rego, ruc, cof])
+
+    res.json('inserted!')
+  } catch (error) {
+    console.error('Error al insertar en la base de datos:', error);
+    res.status(500).json({ error: 'Server Internal Error', message: error });
+  }
 })
 
-router.delete('/reset', async(req, res) => {
+router.delete('/reset', async (req, res) => {
   const resetParam = req.query.reset;
 
   if (resetParam === 'clean') {
@@ -56,24 +63,25 @@ router.delete('/reset', async(req, res) => {
   }
 });
 
-const setSocketIO = (io: any) => {
-  router.put('/:id', async (req, res) => {
-    const idbay = +req.params.id
-    const response = await pool.query('SELECT * FROM bays where idbay = $1', [idbay])
-    const vehicle = response.rows[0]
-    const { plate, date, rego, ruc, cof } = req.body
+router.put('/:id', async (req, res) => {
+  const idbay = +req.params.id
+  const response = await pool.query('SELECT * FROM bays where idbay = $1', [idbay])
+  const vehicle = response.rows[0]
+  const { plate, date, rego, ruc, cof } = req.body
 
-    if (vehicle === undefined) {
-      res.status(400).json('update failed!')
-    }
-
-    const update = await pool.query('UPDATE bays SET plate = $1, date = $2, rego = $3, ruc = $4, cof = $5 WHERE idbay = $6', [plate.toUpperCase(), date, rego, ruc, cof, idbay]) 
-    
+  if (vehicle === undefined) {
+    res.status(400).json('update failed!')
+  }
+  try {
+    const update = await pool.query('UPDATE bays SET plate = $1, date = $2, rego = $3, ruc = $4, cof = $5 WHERE idbay = $6', [plate.toUpperCase(), date, rego, ruc, cof, idbay])
     if (update.rowCount === 0) {
       res.status(400).json('failed!')
     }
     res.json(vehicle)
-  })
-}
+  } catch (error) {
+    console.error('Error al actualizar en la base de datos:', error);
+    res.status(500).json({ error: 'Server Internal Error', message: error });
+  }
+})
 
-export { router, setSocketIO } 
+export { router } 
