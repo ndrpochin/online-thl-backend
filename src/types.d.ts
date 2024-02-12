@@ -13,4 +13,5 @@ export interface Vehicle {
   date: DateType
   rego: boolean
   ruc: boolean
+  cof: boolean
 }
